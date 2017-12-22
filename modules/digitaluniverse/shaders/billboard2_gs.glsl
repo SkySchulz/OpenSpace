@@ -30,13 +30,13 @@ layout(points) in;
 layout(triangle_strip, max_vertices = 6) out;
 
 //uniform dmat4 transformMatrix;
-uniform dmat4 modelViewProjectionTransform;
+uniform mat4 modelViewProjectionTransform;
 uniform float scaleFactor;
-uniform dvec3 up;
-uniform dvec3 right;
-uniform dvec3 cameraPosition;
-uniform dvec3 cameraLookUp;
-uniform dvec4 centerScreenInWorldPosition;
+uniform vec3 up;
+uniform vec3 right;
+uniform vec3 cameraPosition;
+uniform vec3 cameraLookUp;
+uniform vec4 centerScreenInWorldPosition;
 uniform int renderOption;
 uniform vec2 screenSize;
 uniform float maxBillboardSize;
@@ -49,7 +49,7 @@ out vec2 texCoord;
 out float vs_screenSpaceDepth;
 out float ta;
 
-const double PARSEC = 0.308567756e17LF;
+const float PARSEC = 0.308567756e17;
 
 const vec2 corners[4] = vec2[4]( 
     vec2(0.0, 0.0),
@@ -64,28 +64,28 @@ void main() {
     vec4 pos    = gl_in[0].gl_Position;
     gs_colorMap = colorMap[0];
     
-    double scaleMultiply = exp(scaleFactor/10);
-    dvec3 scaledRight    = dvec3(0.0);
-    dvec3 scaledUp       = dvec3(0.0);
+    float scaleMultiply = exp(scaleFactor/10.0f);
+    vec3 scaledRight    = vec3(0.0f);
+    vec3 scaledUp       = vec3(0.0f);
 
     if (renderOption == 0) {
         scaledRight = scaleMultiply * right/2.0f;
         scaledUp    = scaleMultiply * up/2.0f;
     } else if (renderOption == 1) {
-        dvec3 normal   = normalize(cameraPosition - dvec3(pos.xyz));
-        dvec3 newRight = normalize(cross(cameraLookUp, normal));
-        dvec3 newUp    = cross(normal, newRight);
+        vec3 normal   = normalize(cameraPosition - pos.xyz);
+        vec3 newRight = normalize(cross(cameraLookUp, normal));
+        vec3 newUp    = cross(normal, newRight);
         scaledRight    = scaleMultiply * newRight/2.0f;
         scaledUp       = scaleMultiply * newUp/2.0f;
     } else if (renderOption == 2) {
-        dvec3 normal   = normalize(centerScreenInWorldPosition.xyz - dvec3(pos.xyz));
-        dvec3 newRight = normalize(cross(cameraLookUp, normal));
-        dvec3 newUp    = cross(normal, newRight);
+        vec3 normal   = normalize(centerScreenInWorldPosition.xyz - pos.xyz);
+        vec3 newRight = normalize(cross(cameraLookUp, normal));
+        vec3 newUp    = cross(normal, newRight);
         scaledRight    = scaleMultiply * newRight/2.0f;
         scaledUp       = scaleMultiply * newUp/2.0f;
     }
 
-    double unit = PARSEC;
+    float unit = PARSEC;
 
     // Must be the same as the enum in RenderableBillboardsCloud.h
     if (pos.w == 1.f) {
@@ -103,20 +103,20 @@ void main() {
     }
     
     //dvec4 dpos = transformMatrix * dvec4(dvec3(pos.xyz) * unit, 1.0); 
-    dvec4 dpos = dvec4(dvec3(pos.xyz) * unit, 1.0); 
+    vec4 dpos = vec4(pos.xyz * unit, 1.0); 
 
     // texCoord = corners[0];
     vec4 initialPosition = z_normalization(vec4(modelViewProjectionTransform * 
-                            dvec4(dpos.xyz - scaledRight - scaledUp, dpos.w)));
+                            vec4(dpos.xyz - scaledRight - scaledUp, dpos.w)));
     vs_screenSpaceDepth  = initialPosition.w;
     
     // texCoord    = corners[1];
     vec4 secondPosition = z_normalization(vec4(modelViewProjectionTransform * 
-                    dvec4(dpos.xyz + scaledRight - scaledUp, dpos.w)));
+                    vec4(dpos.xyz + scaledRight - scaledUp, dpos.w)));
     
     //texCoord = corners[2];
     vec4 crossCorner = z_normalization(vec4(modelViewProjectionTransform * 
-                        dvec4(dpos.xyz + scaledUp + scaledRight, dpos.w)));
+                        vec4(dpos.xyz + scaledUp + scaledRight, dpos.w)));
     
     // texCoord = corners[3];
     vec4 thirdPosition = z_normalization(vec4(modelViewProjectionTransform * 
@@ -142,14 +142,14 @@ void main() {
         scaledRight = correctionScale * scaleMultiply * right/2.0f;
         scaledUp    = correctionScale * scaleMultiply * up/2.0f;
         initialPosition = z_normalization(vec4(modelViewProjectionTransform *
-                                dvec4(dpos.xyz - scaledRight - scaledUp, dpos.w)));
+                                vec4(dpos.xyz - scaledRight - scaledUp, dpos.w)));
         vs_screenSpaceDepth  = initialPosition.w;
         secondPosition = z_normalization(vec4(modelViewProjectionTransform * 
-                        dvec4(dpos.xyz + scaledRight - scaledUp, dpos.w)));
+                        vec4(dpos.xyz + scaledRight - scaledUp, dpos.w)));
         crossCorner = z_normalization(vec4(modelViewProjectionTransform * 
                             dvec4(dpos.xyz + scaledUp + scaledRight, dpos.w)));
         thirdPosition = z_normalization(vec4(modelViewProjectionTransform *
-                        dvec4(dpos.xyz + scaledUp - scaledRight, dpos.w)));
+                        vec4(dpos.xyz + scaledUp - scaledRight, dpos.w)));
 
         // Fade-out
         // float maxVar = 2.0f * maxBillboardSize;

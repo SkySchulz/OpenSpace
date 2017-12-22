@@ -517,7 +517,7 @@ RenderableBillboardsCloud::RenderableBillboardsCloud(const ghoul::Dictionary& di
     addProperty(_scaleFactor);
 
     if (dictionary.hasKey(PolygonSidesInfo.identifier)) {
-        _polygonSides = static_cast<float>(
+        _polygonSides = static_cast<int>(
             dictionary.value<double>(PolygonSidesInfo.identifier)
             );
         _hasPolygon = true;
@@ -544,17 +544,17 @@ RenderableBillboardsCloud::RenderableBillboardsCloud(const ghoul::Dictionary& di
 
 
         if (dictionary.hasKey(TextSizeInfo.identifier)) {
-            _textSize = dictionary.value<double>(TextSizeInfo.identifier);
+            _textSize = dictionary.value<float>(TextSizeInfo.identifier);
         }
         addProperty(_textSize);
 
         if (dictionary.hasKey(LabelMinSizeInfo.identifier)) {
-            _textMinSize = static_cast<int>(dictionary.value<float>(LabelMinSizeInfo.identifier));
+            _textMinSize = dictionary.value<float>(LabelMinSizeInfo.identifier);
         }
         addProperty(_textMinSize);
 
         if (dictionary.hasKey(LabelMaxSizeInfo.identifier)) {
-            _textMaxSize = static_cast<int>(dictionary.value<float>(LabelMaxSizeInfo.identifier));
+            _textMaxSize = dictionary.value<float>(LabelMaxSizeInfo.identifier);
         }
         addProperty(_textMaxSize);
     }
@@ -604,7 +604,7 @@ void RenderableBillboardsCloud::initialize() {
     if (!_colorOptionString.empty()) {
         // Following DU behavior here. The last colormap variable 
         // entry is the one selected by default.
-        _colorOption.setValue(_colorRangeData.size() - 1);
+        _colorOption.setValue(static_cast<int>(_colorRangeData.size()) - 1);
     }
 }
 
@@ -692,12 +692,12 @@ void RenderableBillboardsCloud::renderBillboards(const RenderData& data,
 
     glm::dmat4 projMatrix = glm::dmat4(data.camera.projectionMatrix());
     _program->setUniform("screenSize", glm::vec2(OsEng.renderEngine().renderingResolution()));
-    _program->setUniform("projection", projMatrix);
-    _program->setUniform("modelViewTransform", modelViewMatrix);
-    _program->setUniform("modelViewProjectionTransform", projMatrix * modelViewMatrix);
-    _program->setUniform("cameraPosition", glm::dvec3(worldToModelTransform *
+    _program->setUniform("projection", data.camera.projectionMatrix());
+    _program->setUniform("modelViewTransform", glm::mat4(modelViewMatrix));
+    _program->setUniform("modelViewProjectionTransform", glm::mat4(projMatrix * modelViewMatrix));
+    _program->setUniform("cameraPosition", glm::vec3(worldToModelTransform *
         glm::dvec4(data.camera.positionVec3(), 1.0)));
-    _program->setUniform("cameraLookUp", glm::dvec3(worldToModelTransform *
+    _program->setUniform("cameraLookUp", glm::vec3(worldToModelTransform *
         glm::dvec4(data.camera.lookUpVectorWorldSpace(), 1.0)));
 
     //_program->setUniform("cameraPosition", data.camera.positionVec3());
@@ -717,8 +717,8 @@ void RenderableBillboardsCloud::renderBillboards(const RenderData& data,
     _program->setUniform("alphaValue", _alphaValue);
     _program->setUniform("scaleFactor", _scaleFactor);
 
-    _program->setUniform("up", orthoUp);
-    _program->setUniform("right", orthoRight);
+    _program->setUniform("up", glm::vec3(orthoUp));
+    _program->setUniform("right", glm::vec3(orthoRight));
 
     _program->setUniform("fadeInValue", fadeInVariable);
 
@@ -816,9 +816,9 @@ void RenderableBillboardsCloud::renderLabels(const RenderData& data,
             *_font,
             scaledPos,
             textColor,
-            pow(10.0, _textSize.value()),
-            _textMinSize,
-            _textMaxSize,
+            powf(10.0f, _textSize.value()),
+            static_cast<int>(_textMinSize),
+            static_cast<int>(_textMaxSize),
             modelViewProjectionMatrix,
             orthoRight,
             orthoUp,
@@ -859,7 +859,7 @@ void RenderableBillboardsCloud::render(const RenderData& data, RendererTasks&) {
 
     float fadeInVariable = 1.0f;
     if (!_disableFadeInDistance) {
-        float distCamera = glm::length(data.camera.positionVec3());
+        float distCamera = static_cast<float>(glm::length(data.camera.positionVec3()));
 
         /*
         // Linear Fading
@@ -875,9 +875,9 @@ void RenderableBillboardsCloud::render(const RenderData& data, RendererTasks&) {
         float a = 1.0f / ((fadeRange.y - fadeRange.x) * scale);
         float b = -(fadeRange.x / (fadeRange.y - fadeRange.x));
         float funcValue = a * distCamera + b;
-        fadeInVariable *= funcValue > 1.0 ? 1.0 : funcValue;
+        fadeInVariable *= funcValue > 1.0f ? 1.0f : funcValue;
 
-        if (funcValue < 0.01) {
+        if (funcValue < 0.01f) {
             return;
         }
     }
@@ -1490,7 +1490,7 @@ void RenderableBillboardsCloud::createDataSlice() {
             // is the outliers color.
             glm::vec4 itemColor;                
             float variableColor = _fullData[i + 3 + colorMapInUse];
-            int c = colorBins.size()-1;
+            int c = static_cast<int>(colorBins.size())-1;
             while (variableColor < colorBins[c]) {
                 --c;
                 if (c == 0)
