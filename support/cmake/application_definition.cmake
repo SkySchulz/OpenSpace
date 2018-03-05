@@ -30,6 +30,12 @@ function (create_new_application application_name)
     add_executable(${application_name} MACOSX_BUNDLE ${ARGN})
     set_openspace_compile_settings(${application_name})
 
+    set_target_properties(
+        ${application_name}
+        PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${OPENSPACE_BASE_DIR}/include/pch.h"
+    )
+    cotire(${application_name})
+
     if (WIN32)
         get_external_library_dependencies(ext_lib)
         ghl_copy_files(

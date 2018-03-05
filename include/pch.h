@@ -1,0 +1,23 @@
+#include <openspace/engine/openspaceengine.h>
+#include <openspace/properties/property.h>
+#include <openspace/properties/propertydelegate.h>
+#include <openspace/properties/propertyowner.h>
+#include <openspace/properties/numericalproperty.h>
+#include <openspace/properties/templateproperty.h>
+#include <openspace/util/key.h>
+#include <openspace/util/mouse.h>
+#include <ghoul/glm.h>
+#include <ghoul/filesystem/filesystem.h>
+#include <ghoul/lua/ghoul_lua.h>
+#include <ghoul/lua/lua_helper.h>
+#include <ghoul/logging/logmanager.h>
+#include <ghoul/misc/boolean.h>
+#include <ghoul/misc/dictionary.h>
+#include <atomic>
+#include <functional>
+#include <map>
+#include <memory>
+#include <set>
+#include <string>
+#include <vector>
+

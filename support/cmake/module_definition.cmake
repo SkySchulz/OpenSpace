@@ -49,6 +49,12 @@ function (create_new_module module_name output_library_name library_mode)
     # Set compile settings that are common to all modules
     set_openspace_compile_settings(${library_name})
 
+    set_target_properties(
+        ${library_name}
+        PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${OPENSPACE_BASE_DIR}/include/pch.h"
+    )
+    cotire(${library_name})
+
     handle_module_dependencies(${library_name} ${module_name})
 
     if ("${library_mode}" STREQUAL "SHARED")

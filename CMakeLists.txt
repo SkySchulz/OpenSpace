@@ -24,6 +24,9 @@
 
 cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 
+# list(APPEND CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/support/cmake/CMakePCHCompiler)
+
+# project(OpenSpace CXX CXXPCH)
 project(OpenSpace)
 message(STATUS "Generating OpenSpace project")
 
@@ -56,8 +59,18 @@ if (MSVC AND (MSVC_VERSION LESS 1910))
 endif ()
 
 # Set build output directories
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${OPENSPACE_CMAKE_EXT_DIR})
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
+    ${OPENSPACE_CMAKE_EXT_DIR}
+    ${OPENSPACE_CMAKE_EXT_DIR}/cotire/CMake
+)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${OPENSPACE_BASE_DIR}/bin)
+
+
+##########################################################################################
+# Setup Cotire for precompiled header and unity builds                                   #
+##########################################################################################
+
+include(cotire)
 
 ##########################################################################################
 # Main                                                                                   #

@@ -420,3 +420,10 @@ configure_file(
 )
 
 set_openspace_compile_settings(libOpenSpace)
+
+set_target_properties(
+    libOpenSpace
+    PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${OPENSPACE_BASE_DIR}/include/pch.h"
+)
+cotire(libOpenSpace)
+# target_precompiled_header(libOpenSpace ${OPENSPACE_BASE_DIR}/include/pch.h)

@@ -29,6 +29,7 @@ The script requires one argument, which is the text file of one or many runs of 
 Visual Studio compiler
 """
 
+import operator
 import sys
 
 if len(sys.argv) != 2:
@@ -62,5 +63,6 @@ with open(file) as f:
         else:
             count[l] = 1
 
-    for key, value in sorted(count.iteritems(), key=lambda (k,v): (v,k)):
+    for key, value in sorted(count.items(), key=operator.itemgetter(1)):
+    # for key, value in sorted(count.iteritems(), key=lambda (k,v): (v,k)):
         print("%s: %s" % (key.ljust(100), value))
